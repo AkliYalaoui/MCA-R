@@ -1,0 +1,128 @@
+---
+title: "AFCm"
+author: "YALAOUI Akli & BOULAOUAD ADEL"
+date: "1/26/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r}
+library(FactoMineR)
+# Import our data
+data <- read.table(file.choose(),sep =",",header = T)
+```
+
+```{r}
+#Check our variables type
+summary(data)
+```
+
+```{r}
+
+# this is just an index, we remove it
+data$Number <- NULL
+
+# check for NA values
+
+for (i in 1: ncol(data)){
+  print(sum(is.na(data[,i])))
+}
+```
+```{r}
+# Check for empty values
+
+for (i in 1: ncol(data)){
+  print(sum((data[,i] == "")))
+}
+```
+```{r}
+# This function returns the mode of the categorical variable
+
+Mode <- function(u){
+  tmp <- unique(u)
+  tmp[which.max(tabulate(match(u,tmp)))]
+}
+
+# substitute empty values with the mode of the variables
+
+for (i in 1: ncol(data)){
+  data[data[,i] == "",i] <- Mode(data[,i])
+}
+```
+
+
+```{r pressure}
+Cat_plot <- function(y,title){
+  n <- table(y)
+  barplot(n[order(n, decreasing = TRUE)],las = 2,main=title,ylab = "Count")
+  
+}
+
+Cat_plot(data$Nationality,"Frequence of each modality in : Nationality")
+
+#The majority (77) of the students surveyed were Chinese 
+#followed by Saudi Arabia, and Korea at 6
+#The majority of the countries either had 2 or 1 student surveyed.
+
+data$Nationality <- NULL
+```
+
+
+
+
+
+
+```{r}
+# transform variables to factors
+for(i in 1: ncol(data)){
+  data[,i] <- as.factor(data[,i])
+}
+
+# make the complete disjunctive table
+tdc <- tab.disjonctif(data)
+
+```
+
+
+
+
+```{r}
+# apply mca to data
+acm <- MCA(data)
+```
+
+```{r}
+# eigen values
+head(acm$eig)
+barplot(acm$eig[,1],acm$eig[,2])
+```
+```{r}
+# absolute contribution
+head(acm$var$contrib)
+
+```
+
+```{r}
+# quality of representation of variables
+head(acm$var$cos2)
+```
+
+```{r}
+########################################### AFC
+
+tc <- table(data$Age,data$Gender)
+tc
+```
+
+```{r}
+afc <- CA(tc)
+```
+
+```{r}
+afc
+```
+
