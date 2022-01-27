@@ -491,6 +491,21 @@ On déduit que le 2ème axe est à effet taille, il caractèrise les étudiants 
 On remarque que certaines individus n'ont pas un age entre 31 et 35 mais ils representent cet axe, on conclut donc que ces individus sont mal représentés.
 Or on remarque aussi que ce premier plan factoriel ne représente que 11.16% de l'information contenue dans notre jeu de données.
 
+## Les fortes association qu'on peut ressortir de l'AFCM :
+Ceux  qui ont un age compris entre 31 et 35 ont tendance à étre tout à fait d'accord avec la question 7
+
+```{r}
+# for (i in 1:ncol(df)){
+#   for(j in 1:ncol(df)){
+#     
+#     
+#     if( sqrt( ( coordCol$`Dim 1`[i] - coordCol$`Dim 1`[j] )**2 + ( coordCol$`Dim 2`[i] - coordCol$`Dim 2`[j] )**2 )  < 1 && i != j){
+#       print(c(colnames(df)[i],colnames(df)[j]))
+#     }
+#   }
+# }
+```
+
 ## Les questions les mieux représentées par l'AFCM :
 
 ```{r}
