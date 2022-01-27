@@ -129,72 +129,255 @@ for (i in 1: ncol(data)){
 
 # Etude et visualisation des statistiques des données :
 
+Dans cette section , nous allons commencer à explorer nos données en étudiant les modalités de chaque variables.
+On aura besoin d'une fonction qui va nous donner des graphes consisten pour chaque variables
 
 ```{r,out.width="100%"}
 Cat_plot <- function(y,title){
   n <- table(y)
-  barplot(n[order(n, decreasing = TRUE)],las = 2,main=title,ylab = "Count")
+  barplot(n,las = 2,main=title,ylab = "Count")
+  text(x =n, label = n,pos = 1, col = "red")
   
 }
 
-Cat_plot(data$Nationality,"Frequence of each modality in : Nationality")
+```
 
-#The majority (77) of the students surveyed were Chinese 
-#followed by Saudi Arabia, and Korea at 6
-#The majority of the countries either had 2 or 1 student surveyed.
+## La variable Age : 
+En regardant le graph ci-dessous, il est clair que la majorité des personnes interrogées appartenaient au groupe d'âge 21-25 ans. Il y avait 6 personnes de moins de 18 ans et 4 de plus de 36 ans.
+
+```{r}
+Cat_plot(data$Age,"La répartiton de l'age dans cette étude")
 
 ```
 
+## La variable Gender : 
 
+Il y avait une répartition presque égale entre les deux sexes dans l'enquête, 63 femmes et 62 hommes.
 
 ```{r}
-for (i in 1:ncol(data))
-  print(length(levels(data[,i])))
+Cat_plot(data$Gender,"La répartiton du sexe dans cette étude")
 ```
 
+## La variable Nationality 
 
+La majorité (77) des étudiants interrogés étaient chinois, suivis par l'Arabie saoudite et la Corée à 6. La majorité des pays avaient 2 ou 1 étudiant interrogé.
 
 ```{r}
-# transform variables to factors
+Cat_plot(data$Nationality,"La répartiton de la nationalité dans cette étude")
+
+```
+
+## La variable Program : 
+
+La majorité des répondants au sondage étaient dans le programme PM, suivi du programme FC à 31 étudiants. Le programme de langue n'avait qu'un seul étudiant interrogé.
+
+```{r}
+Cat_plot(data$Program,"La répartiton du Program dans cette étude")
+```
+
+## La variable Course : 
+
+La plupart des étudiants interrogés suivaient le cours du Business  (80), suivis de ceux du cours de Law/Legal Studies (14). Le cours sur Media and Communications a le plus petit nombre d'étudiants interrogés à 3.
+
+```{r}
+Cat_plot(data$Course,"La répartiton des Cours dans cette étude")
+```
+
+## La variable English 
+
+Seuls 15 étudiants interrogés avaient des notes supérieures à 70%, la majorité des étudiants se situant entre 60 et 70%. Il y avait  une seule personne qui était inférieure à 40 %.
+
+```{r}
+Cat_plot(data$English,"La répartiton du English  dans cette étude")
+```
+
+## La variable Academic : 
+
+Les notes des cours académiques suivent un modèle similaire à ce que nous avons vu avec les notes des cours d'anglais, la majorité des étudiants interrogés se situent entre 60 et 70%, 13 se situant entre 70% et plus et2 avaient des notes inférieures à 40%.
+
+```{r}
+Cat_plot(data$Academic,"La répartiton du Academic dans cette étude")
+```
+
+## La variable Attendance :
+
+La majorité des étudiants interrogés appartenaient au groupe S0 (63), cela signifie que la plupart des étudiants avaient le plus de présence.
+
+```{r}
+Cat_plot(data$Attendance,"La répartiton de l'Attendance dans cette étude")
+```
+
+## La variable question 6 : 
+
+50 étudiants interrogés sont en désaccord avec l'affirmation selon laquelle leur vie est sans but, sans but précis, c'est la majorité. 23 étudiants interrogés étaient d'accord avec la déclaration, tandis que 27 étudiants n'avaient aucun sentiment dans les deux sens.
+
+```{r}
+Cat_plot(data$X6,"La répartiton des réponse sur la question 6 dans cette étude")
+```
+
+## La variable question 7 :
+
+40 étudiants interrogés ont déclaré qu'ils avaient du mal à organiser les choses qu'ils ont à faire et 35 ont dit qu'ils n'avaient pas de mal. Un total de 14 étudiants ont des sentiments forts dans les deux sens et c'est une répartition égale dans les deux sens.
+
+```{r}
+Cat_plot(data$X7,"La répartiton des réponse sur la question 7 dans cette étude")
+```
+
+## La variable question 8 : 
+
+
+61 étudiants interrogés ont déclaré qu'une fois qu'ils ont commencé quelque chose, ils le finiront. Au total, 28 élèves ont déclaré qu'ils étaient soit en désaccord soit fortement en désaccord quant à la fin des activités qu'ils ont commencées.
+
+```{r}
+Cat_plot(data$X8,"La répartiton des réponse sur la question 8 dans cette étude")
+```
+
+## La variable question 9 : 
+
+44 étudiants interrogés étaient d'accord ou fortement d'accord qu'ils ont parfois l'impression que les choses qu'ils doivent faire pendant la journée n'ont tout simplement pas d'importance et 26 étudiants étaient en désaccord ou fortement en désaccord. La majorité des étudiants (48) n'ont répondu ni l'un ni l'autre.
+
+```{r}
+Cat_plot(data$X9,"La répartiton des réponse sur la question 9 dans cette étude")
+```
+
+## La variable question 10 : 
+
+Au total, 57 élèves ont déclaré être fortement d'accord ou d'accord avec l'énoncé selon lequel ils planifient leurs activités. 34 élèves n'ont répondu ni l'un ni l'autre.
+
+```{r}
+Cat_plot(data$X10,"La répartiton des réponse sur la question 10 dans cette étude")
+```
+
+## La variable question 11 :
+
+La plupart des étudiants (38) ont déclaré qu'ils n'étaient pas d'accord avec l'affirmation selon laquelle ils avaient laissé les choses à la dernière minute. 31 ont dit qu'ils étaient d'accord pour laisser les choses à la dernière minute.
+
+```{r}
+Cat_plot(data$X11,"La répartiton des réponse sur la question 11 dans cette étude")
+```
+
+## La variable question 12 : 
+
+52 étudiants ont déclaré qu'ils n'avaient pas tendance à passer sans but précis d'une activité à l'autre au cours de la journée, c'est le nombre le plus élevé parmi tous les choix possibles. Plus d'élèves étaient d'accord/tout à fait d'accord qu'en désaccord/pas du tout d'accord avec l'énoncé selon lequel ils ont tendance à passer sans but précis d'une activité à l'autre au cours de la journée.
+
+```{r}
+Cat_plot(data$X12,"La répartiton des réponse sur la question 12 dans cette étude")
+```
+
+## La variable question 13 : 
+
+Plus d'étudiants (42 + 39 = 81) ont dit qu'ils étaient en désaccord/pas du tout d'accord que d'accord/tout à fait d'accord (13 + 5 = 18) lorsqu'il s'agissait d'abandonner les choses qu'ils avaient prévu de faire simplement parce que leur ami avait dit non.
+
+```{r}
+Cat_plot(data$X13,"La répartiton des réponse sur la question 13 dans cette étude")
+```
+
+## La variable question 14 : 
+
+47 étudiants étaient d'accord/tout à fait d'accord qu'ils avaient fait assez de leur temps, et c'était la majorité des étudiants interrogés. 41 étudiants ont fait le chemin inverse avec leurs réponses et 37 n'ont dit ni l'un ni l'autre.
+
+```{r}
+Cat_plot(data$X14,"La répartiton des réponse sur la question 14 dans cette étude")
+```
+
+## La variable question 15 : 
+
+La réponse la plus élevée à la question si les étudiants s'ennuient facilement avec leurs activités quotidiennes d'aujourd'hui était la réponse Neither avec 39 étudiants et est suivie par ceux qui étaient d'accord (36) qu'ils s'ennuient facilement avec leurs activités quotidiennes.
+
+```{r}
+Cat_plot(data$X15,"La répartiton des réponse sur la question 15 dans cette étude")
+```
+
+## La variable question 16 :
+
+47 étudiants ont déclaré que leurs intérêts/activités importants dans leur vie avaient tendance à changer fréquemment. Cette réponse comptait le plus grand nombre d'étudiants et était suivie par ceux qui n'étaient pas d'accord (31).
+
+```{r}
+Cat_plot(data$X16,"La répartiton des réponse sur la question 16 dans cette étude")
+```
+
+## La variable question 17 : 
+
+Plus d'élèves étaient d'accord (45) que pas d'accord (29) avec l'énoncé selon lequel ils savent combien de temps ils consacrent aux devoirs qu'ils font.
+
+```{r}
+Cat_plot(data$X17,"La répartiton des réponse sur la question 17 dans cette étude")
+```
+
+# Préparation à l'AFCm
+
+Pour faire l'AFCM ou l'AFC il faut charger le package FactoMineR : 
+
+```{r,warning=FALSE}
+library(FactoMineR)
+```
+
+Pour pouvoir transformer notre dataset à un tableau disjonctif complet, il faut d'abord transformer les colonnes au type factor :
+
+```{r}
+
+J <- 0
+
 for(i in 1: ncol(data)){
   data[,i] <- as.factor(data[,i])
+  J <- J + length(levels(data[,i]))
 }
 
-# make the complete disjunctive table
+
+print(c("Nombre total de modaliés : " ,J))
+
 tdc <- tab.disjonctif(data)
-
 df <- as.data.frame(tdc)
+```
 
+![tableau disjonctif complet](tc.png)
+
+On a 125 individus, ici nous allons considérer que les modalités avec un effectif moins de 15 est trés faible, donc on va éliminer ces modalités, nous avons opter pour cette option pour alléger un peu le nombre de colonne [ on avait 120 modalités] 
+
+```{r}
 n <- nrow(df)
 k <- 0
 
 for( i in 1: ncol(df)){
   ns <- sum(df[,i])
-  fs <- ns /ns
+  fs <- ns /n
   
-  if( fs > 0.5){
-    #print(colnames(df)[i])
-    k <- k + 1
+  if( ns < 15 ){
+    df[,i] <- NULL
   }
 
 }
 
-print(k)
+print(ncol(df))
 ```
 
+# AFCM sur le questionnaire : 
 
+Maintenant on a que 50 modalités , on va effectuer une AFC sur le tableau disjonctif complet : 
 
-
-```{r,out.width="100%"}
-# apply mca to data
-acm <- CA(df)
+```{r}
+acm <- CA(df,graph = F)
 ```
 
+## valeurs propres :
+
 ```{r,out.width="100%"}
-# eigen values
-head(acm$eig)
+
 barplot(acm$eig[,1],acm$eig[,2])
 ```
+On remarque que pour avoir un pourcentage d'interie d'au moins 80% il faut prendre les 20 premiers axes factoriels :
+
+```{r}
+acm$eig[,3]
+```
+
+## le biplot individus-variables :
+
+```{r,out.width="100%"}
+plot.CA(acm)
+```
+
+
 ```{r}
 # absolute contribution
 head(acm$col$contrib)
