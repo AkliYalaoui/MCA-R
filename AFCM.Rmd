@@ -326,26 +326,55 @@ for(i in 1: ncol(data)){
 
 print(c("Nombre total de modaliés : " ,J))
 
+```
+
+On a remarqué que la variable nationality possède un nombre de modalité important par rap^port au autres variables, donc on va l'éliminer : 
+```{r}
+print(length(levels(data$Nationality)))
+data$Nationality <- NULL
+data$English <- NULL
+
+data$X7 <- NULL
+data$X8 <- NULL
+data$X9 <- NULL
+data$X10 <- NULL
+data$X11 <- NULL
+data$X12 <- NULL
+data$X13 <- NULL
+data$X14 <- NULL
+data$X15 <- NULL
+data$X16 <- NULL
+data$X17 <- NULL
+
+```
+
+```{r}
+
 tdc <- tab.disjonctif(data)
 df <- as.data.frame(tdc)
 ```
 
 ![tableau disjonctif complet](tc.png)
 
-On a 125 individus, ici nous allons considérer que les modalités avec un effectif moins de 15 est trés faible, donc on va éliminer ces modalités, nous avons opter pour cette option pour alléger un peu le nombre de colonne [ on avait 120 modalités] 
+On a 125 individus, ici nous allons considérer que les modalités avec une fréquence moins de 15% sont trés faible, donc on va éliminer ces modalités, nous avons opter pour cette option pour alléger un peu le nombre de colonne [ on avait 120 modalités] 
 
 ```{r}
 n <- nrow(df)
-k <- 0
 
-for( i in 1: ncol(df)){
+i <- 1
+
+while( i <= ncol(df) ){
+  
   ns <- sum(df[,i])
   fs <- ns /n
-  
-  if( ns < 15 ){
-    df[,i] <- NULL
-  }
 
+  
+  if( fs*100 <= 10  ){
+    df[,i] <- NULL
+    i <- 1
+  }
+  
+  i <- i + 1
 }
 
 print(ncol(df))
@@ -377,12 +406,48 @@ acm$eig[,3]
 plot.CA(acm)
 ```
 
+## Etude du tableau des contributions: 
+
+Une variable contribue bien à la construction du premier axe si so contribution absolue est supérieur à son poids : 
+
 
 ```{r}
-# absolute contribution
-head(acm$col$contrib)
+contrib <- as.data.frame(acm$col$contrib)
+coord <- as.data.frame(acm$col$coord)
+
+for(i in 1:ncol(df)){
+  
+      ns <- sum(df[,i])
+      fs <- ns /n
+      
+      if(contrib$`Dim 1`[i] >= fs*100 && coord$`Dim 1`[i] > 0){
+        print(c(colnames(df)[i],"+"))
+      }
+      if(contrib$`Dim 1`[i] >= fs*100 && coord$`Dim 1`[i] < 0){
+        print(c(colnames(df)[i],"-"))
+      }
+}
 
 ```
+
+```{r}
+
+
+for(i in 1:ncol(df)){
+  
+      ns <- sum(df[,i])
+      fs <- ns /n
+      
+      if(contrib$`Dim 2`[i] >= fs*100 && coord$`Dim 2`[i] > 0){
+        print(c(colnames(df)[i],"+"))
+      }
+      if(contrib$`Dim 2`[i] >= fs*100 && coord$`Dim 2`[i] < 0){
+        print(c(colnames(df)[i],"-"))
+      }
+}
+
+```
+
 
 ```{r}
 # quality of representation of variables
