@@ -55,7 +55,7 @@ for (i in 1: ncol(data)){
 ```
 
 
-```{r pressure}
+```{r,out.width="100%"}
 Cat_plot <- function(y,title){
   n <- table(y)
   barplot(n[order(n, decreasing = TRUE)],las = 2,main=title,ylab = "Count")
@@ -90,39 +90,39 @@ tdc <- tab.disjonctif(data)
 
 
 
-```{r}
+```{r,out.width="100%"}
 # apply mca to data
-acm <- MCA(data)
+acm <- CA(tdc)
 ```
 
-```{r}
+```{r,out.width="100%"}
 # eigen values
 head(acm$eig)
 barplot(acm$eig[,1],acm$eig[,2])
 ```
 ```{r}
 # absolute contribution
-head(acm$var$contrib)
+head(acm$col$contrib)
 
 ```
 
 ```{r}
 # quality of representation of variables
-head(acm$var$cos2)
+head(acm$col$cos2)
 ```
 
 ```{r}
 ########################################### AFC
 
-tc <- table(data$Age,data$Gender)
+tc <- table(data$Academic,data$Attendance)
 tc
 ```
 
-```{r}
+```{r,out.width="100%"}
 afc <- CA(tc)
 ```
 
 ```{r}
-afc
+afc$eig
 ```
 
