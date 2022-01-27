@@ -26,6 +26,7 @@ Ce rapport est organisé comme suivant :
   - Préparation à l'AFCm
   - AFCM sur le questionnaire
   - AFC sur deux questions
+  - Conclusion 
   
 
 # Présentation du dataset : 
@@ -312,9 +313,28 @@ Pour faire l'AFCM ou l'AFC il faut charger le package FactoMineR :
 library(FactoMineR)
 ```
 
-Pour pouvoir transformer notre dataset à un tableau disjonctif complet, il faut d'abord transformer les colonnes au type factor :
+
+On a remarqué que la variable nationality possède un nombre de modalité important par rapport aux autres variables, donc on va l'éliminer, Aussi quelques variables ont le meme nom des modalités donc nous allons les renommer .
+Et pour pouvoir transformer notre dataset à un tableau disjonctif complet, il faut d'abord transformer les colonnes au type factor :
 
 ```{r}
+
+data$Nationality <- NULL
+
+data$English <- paste("English",data$English,sep ="_")
+data$Academic <- paste("Academic",data$Academic,sep ="_")
+data$X6 <- paste("X6",data$X6,sep = "_")
+data$X7 <- paste("X7",data$X7,sep ="_")
+data$X8 <- paste("X8",data$X8,sep ="_")
+data$X9 <- paste("X9",data$X9,sep ="_")
+data$X10 <- paste("X10",data$X10,sep ="_")
+data$X11 <- paste("X11",data$X11,sep ="_")
+data$X12 <- paste("X12",data$X12,sep ="_")
+data$X13 <- paste("X13",data$X13,sep ="_")
+data$X14 <- paste("X14",data$X14,sep ="_")
+data$X15 <- paste("X15",data$X15,sep ="_")
+data$X16 <- paste("X16",data$X16,sep ="_")
+data$X17 <- paste("X17",data$X17,sep ="_")
 
 J <- 0
 
@@ -323,28 +343,7 @@ for(i in 1: ncol(data)){
   J <- J + length(levels(data[,i]))
 }
 
-
 print(c("Nombre total de modaliés : " ,J))
-
-```
-
-On a remarqué que la variable nationality possède un nombre de modalité important par rap^port au autres variables, donc on va l'éliminer : 
-```{r}
-print(length(levels(data$Nationality)))
-data$Nationality <- NULL
-data$English <- NULL
-
-data$X7 <- NULL
-data$X8 <- NULL
-data$X9 <- NULL
-data$X10 <- NULL
-data$X11 <- NULL
-data$X12 <- NULL
-data$X13 <- NULL
-data$X14 <- NULL
-data$X15 <- NULL
-data$X16 <- NULL
-data$X17 <- NULL
 
 ```
 
@@ -356,28 +355,29 @@ df <- as.data.frame(tdc)
 
 ![tableau disjonctif complet](tc.png)
 
-On a 125 individus, ici nous allons considérer que les modalités avec une fréquence moins de 15% sont trés faible, donc on va éliminer ces modalités, nous avons opter pour cette option pour alléger un peu le nombre de colonne [ on avait 120 modalités] 
+On a 125 individus, ici nous allons considérer que les modalités avec un effectif moins de 5 sont trés faible, donc on va éliminer ces modalités, nous avons opter pour cette option pour alléger un peu le nombre de colonne [ on avait 120 modalités] 
 
 ```{r}
+
 n <- nrow(df)
 
 i <- 1
 
 while( i <= ncol(df) ){
-  
-  ns <- sum(df[,i])
-  fs <- ns /n
 
-  
-  if( fs*100 <= 10  ){
+  ns <- sum(df[,i])
+
+
+  if( ns < 5  ){
     df[,i] <- NULL
     i <- 1
   }
-  
+
   i <- i + 1
 }
 
 print(ncol(df))
+
 ```
 
 # AFCM sur le questionnaire : 
@@ -394,7 +394,7 @@ acm <- CA(df,graph = F)
 
 barplot(acm$eig[,1],acm$eig[,2])
 ```
-On remarque que pour avoir un pourcentage d'interie d'au moins 80% il faut prendre les 20 premiers axes factoriels :
+On remarque que pour avoir un pourcentage d'interie d'au moins 80% il faut prendre les 31 premiers axes factoriels :
 
 ```{r}
 acm$eig[,3]
@@ -408,55 +408,121 @@ plot.CA(acm)
 
 ## Etude du tableau des contributions: 
 
-Une variable contribue bien à la construction du premier axe si so contribution absolue est supérieur à son poids : 
+Une variable contribue bien à la construction du premier axe si sa contribution absolue est supérieue à son poids : 
 
 
 ```{r}
-contrib <- as.data.frame(acm$col$contrib)
-coord <- as.data.frame(acm$col$coord)
+contribCol <- as.data.frame(acm$col$contrib)
+coordCol <- as.data.frame(acm$col$coord)
+
+contribRow <- as.data.frame(acm$row$contrib)
+coordRow <- as.data.frame(acm$row$coord)
+
+print("######### Les variables qui contribuent le plus à la construction du premier axe ######### ")
 
 for(i in 1:ncol(df)){
   
       ns <- sum(df[,i])
       fs <- ns /n
       
-      if(contrib$`Dim 1`[i] >= fs*100 && coord$`Dim 1`[i] > 0){
+      if(contribCol$`Dim 1`[i] >= fs*100 && coordCol$`Dim 1`[i] > 0){
         print(c(colnames(df)[i],"+"))
       }
-      if(contrib$`Dim 1`[i] >= fs*100 && coord$`Dim 1`[i] < 0){
+      if(contribCol$`Dim 1`[i] >= fs*100 && coordCol$`Dim 1`[i] < 0){
         print(c(colnames(df)[i],"-"))
       }
 }
 
+print("######### Les individus qui contribuent le plus à la construction du premier axe ######### ")
+
+      
+for(i in 1:nrow(df)){
+
+      
+      if(contribRow$`Dim 1`[i] > 100/n && coordRow$`Dim 1`[i] > 0){
+        print(c(i,"+"))
+      }
+      if(contribRow$`Dim 1`[i] > 100/n && coordRow$`Dim 1`[i] < 0){
+        print(c(i,"-"))
+      }
+}
+
+
+
 ```
+On déduit que le premier axe est à effet taille, il caractèrise les individus qui ont répondu à la question 6 avec " tout à fait d'accord ", représenté par les individus 16,20,25,27,28,43,54,77,79,82,86,87,90,112,113,122 contrairement aux individus 4,7,38,46,58,61,62,64,66,91,96,98,100,105,106,107,111,114,117,119 qui ont été en désaccord avec la question 6
 
 ```{r}
 
+
+print("######### Les variables qui contribuent le plus à la construction du 2ème axe ######### ")
 
 for(i in 1:ncol(df)){
   
       ns <- sum(df[,i])
       fs <- ns /n
       
-      if(contrib$`Dim 2`[i] >= fs*100 && coord$`Dim 2`[i] > 0){
+      if(contribCol$`Dim 2`[i] > fs*100 && coordCol$`Dim 2`[i] > 0){
         print(c(colnames(df)[i],"+"))
       }
-      if(contrib$`Dim 2`[i] >= fs*100 && coord$`Dim 2`[i] < 0){
+      if(contribCol$`Dim 2`[i] > fs*100 && coordCol$`Dim 2`[i] < 0){
         print(c(colnames(df)[i],"-"))
+      }
+      
+}
+
+print("######### Les individus qui contribuent le plus à la construction du 2ème axe ######### ")
+
+      
+for(i in 1:nrow(df)){
+  
+      
+      if(contribRow$`Dim 2`[i] > 100/n && coordRow$`Dim 2`[i] > 0){
+        print(c(i,"+"))
+      }
+      if(contribRow$`Dim 2`[i] > 100/n && coordRow$`Dim 2`[i] < 0){
+        print(c(i,"-"))
       }
 }
 
 ```
+On déduit que le 2ème axe est à effet taille, il caractèrise les étudiants qui ont déclaré que leurs age est compris entre 31 ans et 35 représenté par les individus 1,3,6,16,20,28,31,36,43,59,69,98,101,112,118,122,125 contrairement aux individus 5,11,26,27,30,49,73,76,80,82,88,89,113,120
 
+On remarque que certaines individus n'ont pas un age entre 31 et 35 mais ils representent cet axe, on conclut donc que ces individus sont mal représentés.
+Or on remarque aussi que ce premier plan factoriel ne représente que 11.16% de l'information contenue dans notre jeu de données.
+
+## Les questions les mieux représentées par l'AFCM :
 
 ```{r}
-# quality of representation of variables
-head(acm$col$cos2)
+cosCol <- as.data.frame(acm$col$cos2)
+
+print("######### Les variables les mieux représentées par le  premier axe ######### ")
+
+for(i in 1:ncol(df)){
+  
+      
+      if(cosCol$`Dim 1`[i] >= 0.2 ){
+        print(colnames(df)[i])
+      }
+}
+
+print("######### Les variables les mieux représentées par le 2ème axe ######### ")
+
+for(i in 1:ncol(df)){
+  
+      
+      if(cosCol$`Dim 2`[i] >= 0.2 ){
+        print(colnames(df)[i])
+      }
+}
+
 ```
+# AFC sur deux questions : 
+## Croiser 2 questions : 
+
+on croise la variable académique [ les notes obtenues dans le cours acadèmique] à la variable attendance [ nombre d'absence :  s0 = faible, s4 elevé]
 
 ```{r}
-########################################### AFC
-
 tc <- table(data$Academic,data$Attendance)
 tc
 ```
@@ -465,7 +531,104 @@ tc
 afc <- CA(tc)
 ```
 
-```{r}
-afc$eig
+## valeurs propres :
+
+On remarque qu'avec seulement les 2 premiers axe on a une tres bonne représentation
+
+```{r,out.width="100%"}
+
+barplot(afc$eig[,1],afc$eig[,2])
 ```
 
+
+## Etude du tableau des contributions: 
+
+```{r}
+contribCol <- as.data.frame(afc$col$contrib)
+coordCol <- as.data.frame(afc$col$coord)
+
+contribRow <- as.data.frame(afc$row$contrib)
+coordRow <- as.data.frame(afc$row$coord)
+
+print("######### Les profile colonnes qui contribuent le plus à la construction du premier axe ######### ")
+
+for(i in 1:ncol(tc)){
+  
+      ns <- sum(tc[,i])
+      fs <- ns /n
+      
+      if(contribCol$`Dim 1`[i] >= fs*100 && coordCol$`Dim 1`[i] > 0){
+        print(c(colnames(tc)[i],"+"))
+      }
+      if(contribCol$`Dim 1`[i] >= fs*100 && coordCol$`Dim 1`[i] < 0){
+        print(c(colnames(tc)[i],"-"))
+      }
+}
+
+print("######### Les profiles lignes qui contribuent le plus à la construction du premier axe ######### ")
+
+      
+for(i in 1:nrow(tc)){
+  
+      ns <- sum(tc[i,])
+      fs <- ns /n
+
+      if(contribRow$`Dim 1`[i] > fs*100 && coordRow$`Dim 1`[i] > 0){
+        print(c(rownames(tc)[i],"+"))
+      }
+      if(contribRow$`Dim 1`[i] > fs*100 && coordRow$`Dim 1`[i] < 0){
+        print(c(rownames(tc)[i],"-"))
+      }
+}
+
+```
+
+On déduit que le premier axe est à effet taille, il quantifie les classes qui ont beaucoup d'absences [s3] représenté par les individus qui ont des moyennes comprises entre 49% et 40% dans les cours académique et aussi les classes qui ont énormément d'absences [s4] représenté par les individus qui ont des moyennes inférieure à  40%.
+
+
+```{r}
+
+print("######### Les profile colonnes qui contribuent le plus à la construction du 2ème axe ######### ")
+
+for(i in 1:ncol(tc)){
+  
+      ns <- sum(tc[,i])
+      fs <- ns /n
+      
+      if(contribCol$`Dim 2`[i] >= fs*100 && coordCol$`Dim 2`[i] > 0){
+        print(c(colnames(tc)[i],"+"))
+      }
+      if(contribCol$`Dim 2`[i] >= fs*100 && coordCol$`Dim 2`[i] < 0){
+        print(c(colnames(tc)[i],"-"))
+      }
+}
+
+print("######### Les profiles lignes qui contribuent le plus à la construction du 2ème axe ######### ")
+
+      
+for(i in 1:nrow(tc)){
+  
+      ns <- sum(tc[i,])
+      fs <- ns /n
+
+      if(contribRow$`Dim 2`[i] > fs*100 && coordRow$`Dim 2`[i] > 0){
+        print(c(rownames(tc)[i],"+"))
+      }
+      if(contribRow$`Dim 2`[i] > fs*100 && coordRow$`Dim 2`[i] < 0){
+        print(c(rownames(tc)[i],"-"))
+      }
+}
+
+
+```
+
+Aussi le 2ème axe est à effet taille, il quantifie les classes qui ont beaucoup beacoup d'absences [s4] représenté par les individus qui ont des moyenne inferieure à 40% dans les cours académique. 
+
+
+# Conclusion : 
+
+ - AFCM : 
+ - AFC : Les étudiant qui s'absentent beaucoup ont tendance à avoir des moyennes faibles inférieure à  40%
+ 
+ 
+ 
