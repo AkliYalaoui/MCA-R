@@ -2,7 +2,9 @@
 title: "AFCm"
 author: "YALAOUI Akli & BOULAOUAD ADEL"
 date: "1/26/2022"
-output: html_document
+output:
+  pdf_document: default
+  html_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -11,7 +13,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 # Introduction :
 
-L'objectif de ce tp est de déterminer les associations pertinentes entres les questions et les réponses dans un questionnaire qui aideront à
+L’objectif de ce tp est de déterminer les associations pertinentes entres les questions et les réponses dans un questionnaire qui aideront à
 comprendre l'état des lieux et prendre des décisions. Et cela en appliquant l'AFCM à ce questionnaire.
 
 L’AFCM est une méthode d’analyse de données qui consiste à appliquer l’AFC à l’étude des tableaux qui sont résultats d’observations d’individus
@@ -48,37 +50,30 @@ Ici nous allons importer les données à partir du fichier csv, et découvrir le
 data <- read.csv("International students Time management data.csv")
 
 # Nombre de variables
-print(ncol(data))
+print(c("nombre de variable",ncol(data)))
 
 # Nombre d'individus
-print(nrow(data))
+print(c("nombre de ligne",nrow(data)))
 
-# Le noms des variables
+print("#######################################")
+# Les noms et type des variables
 for(i in 1:ncol(data)){
-  print(colnames(data)[i])
+  print(c(colnames(data)[i],typeof(data[,i])))
 }
 
 
 ```
-Donc on a 21 variables et 125 individus dans le dataset
 
 ![Overview du dataset](d.png)
 
 # Prétraitement des données : 
-
-On fait un summary pour voir les types des variables : 
-
-```{r}
-
-summary(data)
-```
 
 La première variables Number est quantitative et elle représente uniquement un numéro séquentiel pour désigner un individu, donc on doit l'éliminer : 
 ```{r}
 data$Number <- NULL
 ```
 
-On a remarqué qu'il y a des valeurs manquantes dans nos données, on va les détécter pour décider comment on va remédier à ce problème.
+On a remarqué qu'il y a des valeurs manquantes dans nos données, on va les détecter pour décider comment on va remédier à ce problème.
 D'abord on vérifie s'il y a des valeurs de types NA dans chaque colonnes
 
 ```{r}
@@ -88,7 +83,7 @@ for (i in 1: ncol(data)){
 }
 
 ```
-On conclut qu'il n'y a pas de valeurs de type NA, donc on vérifie les chaine de characters vide : 
+On conclut qu'il n'y a pas de valeurs de type NA, donc on vérifie les chaines de characters vide : 
 ```{r}
 for (i in 1: ncol(data)){
   print(c(colnames(data)[i],sum((data[,i] == ""))/nrow(data)*100))
@@ -131,7 +126,7 @@ for (i in 1: ncol(data)){
 # Etude et visualisation des statistiques des données :
 
 Dans cette section , nous allons commencer à explorer nos données en étudiant les modalités de chaque variables.
-On aura besoin d'une fonction qui va nous donner des graphes consisten pour chaque variables
+On aura besoin d'une fonction qui va nous donner des graphes pour chaque variables
 
 ```{r,out.width="100%"}
 Cat_plot <- function(y,title){
@@ -144,7 +139,7 @@ Cat_plot <- function(y,title){
 ```
 
 ## La variable Age : 
-En regardant le graph ci-dessous, il est clair que la majorité des personnes interrogées appartenaient au groupe d'âge 21-25 ans. Il y avait 6 personnes de moins de 18 ans et 4 de plus de 36 ans.
+En regardant le graphe ci-dessous, il est clair que la majorité des personnes interrogées appartenaient au groupe d'âge 21-25 ans. Il y avait 6 personnes de moins de 18 ans et 4 de plus de 36 ans.
 
 ```{r}
 Cat_plot(data$Age,"La répartiton de l'age dans cette étude")
@@ -311,6 +306,7 @@ Pour faire l'AFCM ou l'AFC il faut charger le package FactoMineR :
 
 ```{r,warning=FALSE}
 library(FactoMineR)
+library(factoextra)
 ```
 
 
@@ -355,7 +351,7 @@ df <- as.data.frame(tdc)
 
 ![tableau disjonctif complet](tc.png)
 
-On a 125 individus, ici nous allons considérer que les modalités avec un effectif moins de 5 sont trés faible, donc on va éliminer ces modalités, nous avons opter pour cette option pour alléger un peu le nombre de colonne [ on avait 120 modalités] 
+On a 125 individus, ici nous allons considérer que les modalités avec un effectif moins de 5 sont trés faible, donc on va éliminer ces modalités, nous avons opter pour cette option pour alléger un peu le nombre de colonne [ on avait 94 modalités] 
 
 ```{r}
 
@@ -371,6 +367,7 @@ while( i <= ncol(df) ){
   if( ns < 5  ){
     df[,i] <- NULL
     i <- 1
+    next
   }
 
   i <- i + 1
@@ -382,7 +379,7 @@ print(ncol(df))
 
 # AFCM sur le questionnaire : 
 
-Maintenant on a que 50 modalités , on va effectuer une AFC sur le tableau disjonctif complet : 
+Maintenant on a que 83 modalités , on va effectuer une AFC sur le tableau disjonctif complet : 
 
 ```{r}
 acm <- CA(df,graph = F)
@@ -392,7 +389,7 @@ acm <- CA(df,graph = F)
 
 ```{r,out.width="100%"}
 
-barplot(acm$eig[,1],acm$eig[,2])
+fviz_screeplot(acm, addlabels = TRUE)
 ```
 On remarque que pour avoir un pourcentage d'interie d'au moins 80% il faut prendre les 31 premiers axes factoriels :
 
@@ -402,16 +399,22 @@ acm$eig[,3]
 
 ## le biplot individus-variables :
 
-```{r,out.width="100%"}
-plot.CA(acm)
+```{r,out.width="100%",warning=F}
+fviz_ca_biplot(acm,repel = TRUE,ggtheme = theme_minimal())
 ```
 
 ## Etude du tableau des contributions: 
 
-Une variable contribue bien à la construction du premier axe si sa contribution absolue est supérieue à son poids : 
+Un profile ligne (colonne) contribue bien à la construction du premier axe si sa contribution absolue est supérieue à son poids : 
 
 
 ```{r}
+fviz_contrib(acm, choice = "col", axes = 1, top = 10)
+fviz_contrib(acm, choice = "row", axes = 1, top = 10)
+```
+
+
+```{r,out.width="100%"}
 contribCol <- as.data.frame(acm$col$contrib)
 coordCol <- as.data.frame(acm$col$coord)
 
@@ -421,24 +424,24 @@ coordRow <- as.data.frame(acm$row$coord)
 print("######### Les variables qui contribuent le plus à la construction du premier axe ######### ")
 
 for(i in 1:ncol(df)){
-  
+
       ns <- sum(df[,i])
       fs <- ns /n
-      
+
       if(contribCol$`Dim 1`[i] >= fs*100 && coordCol$`Dim 1`[i] > 0){
         print(c(colnames(df)[i],"+"))
       }
-      if(contribCol$`Dim 1`[i] >= fs*100 && coordCol$`Dim 1`[i] < 0){
+      if(contribCol$`Dim 1`[i] >= 100*fs && coordCol$`Dim 1`[i] < 0){
         print(c(colnames(df)[i],"-"))
       }
 }
 
 print("######### Les individus qui contribuent le plus à la construction du premier axe ######### ")
 
-      
+
 for(i in 1:nrow(df)){
 
-      
+
       if(contribRow$`Dim 1`[i] > 100/n && coordRow$`Dim 1`[i] > 0){
         print(c(i,"+"))
       }
@@ -448,11 +451,16 @@ for(i in 1:nrow(df)){
 }
 
 
-
 ```
 On déduit que le premier axe est à effet taille, il caractèrise les individus qui ont répondu à la question 6 avec " tout à fait d'accord ", représenté par les individus 16,20,25,27,28,43,54,77,79,82,86,87,90,112,113,122 contrairement aux individus 4,7,38,46,58,61,62,64,66,91,96,98,100,105,106,107,111,114,117,119 qui ont été en désaccord avec la question 6
 
+
 ```{r}
+fviz_contrib(acm, choice = "col", axes = 2, top = 10)
+fviz_contrib(acm, choice = "row", axes = 2, top = 10)
+```
+
+```{r,out.width="100%"}
 
 
 print("######### Les variables qui contribuent le plus à la construction du 2ème axe ######### ")
@@ -485,6 +493,7 @@ for(i in 1:nrow(df)){
       }
 }
 
+
 ```
 On déduit que le 2ème axe est à effet taille, il caractèrise les étudiants qui ont déclaré que leurs age est compris entre 31 ans et 35 représenté par les individus 1,3,6,16,20,28,31,36,43,59,69,98,101,112,118,122,125 contrairement aux individus 5,11,26,27,30,49,73,76,80,82,88,89,113,120
 
@@ -492,71 +501,112 @@ On remarque que certaines individus n'ont pas un age entre 31 et 35 mais ils rep
 Or on remarque aussi que ce premier plan factoriel ne représente que 11.16% de l'information contenue dans notre jeu de données.
 
 ## Les fortes association qu'on peut ressortir de l'AFCM :
-Ceux  qui ont un age compris entre 31 et 35 ont tendance à étre tout à fait d'accord avec la question 7
 
-```{r}
-# for (i in 1:ncol(df)){
-#   for(j in 1:ncol(df)){
-#     
-#     
-#     if( sqrt( ( coordCol$`Dim 1`[i] - coordCol$`Dim 1`[j] )**2 + ( coordCol$`Dim 2`[i] - coordCol$`Dim 2`[j] )**2 )  < 1 && i != j){
-#       print(c(colnames(df)[i],colnames(df)[j]))
-#     }
-#   }
-# }
+On calcule la distance khi 2 entre chaque 2 profile colonnes : 
+
+```{r,warning=FALSE}
+
+col.sum <- apply(df, 2, sum)
+row.avg <- apply(df, 1, sum)/sum(df)
+
+k <- as.integer(ncol(df)/2)
+
+for( i in 1:k){
+  for(j in (k+1):ncol(df)){
+
+    col1 <- df[, i]
+    col2 <- df[, j]
+    d2 <- sum(((col1/col.sum[i] - col2/col.sum[j])^2) / row.avg)
+
+    if( d2 < 2 ){
+     print(c(colnames(df)[i],colnames(df)[j]))
+    }
+  }
+}
+
+
 ```
+On remarque que : 
 
+ - Ceux qui sont d'accord avec la question 10 [ ils sont d'accord à planifier leurs activités] suivent le programme PM et ils ont une assiduité S0 [ toujours présents].
+ - Ceux qui sont d'accord avec la question 17 [ ils savent combien de temps qu'ils prennent pour faire leurs devoirs maisons] suivent le cours  Business.
+ - Ceux qui ne sont ni d'accord ni en désaccord  avec la question 9 [ ils ont parfois l'impression que les choses qu'ils doivent faire pendant la journée n'ont tout simplement pas d'importance] suivent le cours  Business et ils ont une trés bonne assiduité.
+ 
 ## Les questions les mieux représentées par l'AFCM :
 
 ```{r}
 cosCol <- as.data.frame(acm$col$cos2)
 
-print("######### Les variables les mieux représentées par le  premier axe ######### ")
+print("######### Les variables les mieux représentées par le  premier plan ######### ")
 
 for(i in 1:ncol(df)){
-  
       
-      if(cosCol$`Dim 1`[i] >= 0.2 ){
-        print(colnames(df)[i])
-      }
-}
-
-print("######### Les variables les mieux représentées par le 2ème axe ######### ")
-
-for(i in 1:ncol(df)){
-  
-      
-      if(cosCol$`Dim 2`[i] >= 0.2 ){
-        print(colnames(df)[i])
+      if(cosCol$`Dim 1`[i] + cosCol$`Dim 2`[i] > 0.3 ){
+        print(rownames(cosCol)[i])
       }
 }
 
 ```
+```{r}
+fviz_cos2(acm, choice = "col", axes = 1:2,top=10)
+```
+
 # AFC sur deux questions : 
 ## Croiser 2 questions : 
 
-on croise la variable académique [ les notes obtenues dans le cours acadèmique] à la variable attendance [ nombre d'absence :  s0 = faible, s4 elevé]
+Ici nous cherchons à faire une AFC entre les 2 questions les plus pertinentes, donc nous allons faire une recherche exhaustive pour les détécter
 
-```{r}
-tc <- table(data$Academic,data$Attendance)
-tc
+```{r,warning=FALSE}
+
+col1 <- -1
+col2 <- -1
+tc_afc <- NULL
+p_value <- 1
+
+for( i in 1:ncol(data)){
+  for(j in 1:ncol(data)){
+    if( i != j){
+      tc <- table(data[,i],data[,j])
+      a <- chisq.test(tc)
+      
+      if( a$p.value < p_value){
+        p_value <- a$p.value
+        col1 <- i
+        col2 <- j
+        tc_afc <- tc
+      }
+    }
+  }
+}
+
+print(colnames(data)[col1])
+print(colnames(data)[col2])
+print(p_value)
+tc_afc
 ```
+Donc on choisit la variable age et program
+
 
 ```{r,out.width="100%"}
-afc <- CA(tc)
+afc <- CA(tc_afc,graph = F)
 ```
 
 ## valeurs propres :
 
-On remarque qu'avec seulement les 2 premiers axe on a une tres bonne représentation
+On remarque qu'avec seulement les 2 premiers axe on a une très très bonne représentation
 
 ```{r,out.width="100%"}
 
-barplot(afc$eig[,1],afc$eig[,2])
+fviz_screeplot(afc, addlabels = TRUE)
+```
+
+```{r}
+fviz_ca_biplot(afc, repel = TRUE)
 ```
 
 
 ## Etude du tableau des contributions: 
+
 
 ```{r}
 contribCol <- as.data.frame(afc$col$contrib)
@@ -567,83 +617,98 @@ coordRow <- as.data.frame(afc$row$coord)
 
 print("######### Les profile colonnes qui contribuent le plus à la construction du premier axe ######### ")
 
-for(i in 1:ncol(tc)){
+for(i in 1:ncol(tc_afc)){
   
-      ns <- sum(tc[,i])
+      ns <- sum(tc_afc[,i])
       fs <- ns /n
       
       if(contribCol$`Dim 1`[i] >= fs*100 && coordCol$`Dim 1`[i] > 0){
-        print(c(colnames(tc)[i],"+"))
+        print(c(rownames(contribCol)[i],"+"))
       }
       if(contribCol$`Dim 1`[i] >= fs*100 && coordCol$`Dim 1`[i] < 0){
-        print(c(colnames(tc)[i],"-"))
+        print(c(rownames(contribCol)[i],"-"))
       }
 }
 
 print("######### Les profiles lignes qui contribuent le plus à la construction du premier axe ######### ")
 
       
-for(i in 1:nrow(tc)){
+for(i in 1:nrow(tc_afc)){
   
-      ns <- sum(tc[i,])
+      ns <- sum(tc_afc[i,])
       fs <- ns /n
 
       if(contribRow$`Dim 1`[i] > fs*100 && coordRow$`Dim 1`[i] > 0){
-        print(c(rownames(tc)[i],"+"))
+        print(c(rownames(contribRow)[i],"+"))
       }
       if(contribRow$`Dim 1`[i] > fs*100 && coordRow$`Dim 1`[i] < 0){
-        print(c(rownames(tc)[i],"-"))
+        print(c(rownames(contribRow)[i],"-"))
       }
 }
-
 ```
 
-On déduit que le premier axe est à effet taille, il quantifie les classes qui ont beaucoup d'absences [s3] représenté par les individus qui ont des moyennes comprises entre 49% et 40% dans les cours académique et aussi les classes qui ont énormément d'absences [s4] représenté par les individus qui ont des moyennes inférieure à  40%.
+On déduit que le premier axe est à effet taille, il caractèrise les étudiants qui sont dans les programmes FC et IYO représenté par les individus qui ont un age inférieure à 20 ans
+
+
+```{r}
+# Contributions of rows to dimension 1
+fviz_contrib(afc, choice = "row", axes = 2, top = 10)
+# Contributions of cols to dimension 1
+fviz_contrib(afc, choice = "col", axes = 2, top = 10)
+```
 
 
 ```{r}
 
 print("######### Les profile colonnes qui contribuent le plus à la construction du 2ème axe ######### ")
 
-for(i in 1:ncol(tc)){
+for(i in 1:ncol(tc_afc)){
   
-      ns <- sum(tc[,i])
+      ns <- sum(tc_afc[,i])
       fs <- ns /n
       
       if(contribCol$`Dim 2`[i] >= fs*100 && coordCol$`Dim 2`[i] > 0){
-        print(c(colnames(tc)[i],"+"))
+        print(c(rownames(contribCol)[i],"+"))
       }
       if(contribCol$`Dim 2`[i] >= fs*100 && coordCol$`Dim 2`[i] < 0){
-        print(c(colnames(tc)[i],"-"))
+        print(c(colnames(contribCol)[i],"-"))
       }
 }
 
 print("######### Les profiles lignes qui contribuent le plus à la construction du 2ème axe ######### ")
 
       
-for(i in 1:nrow(tc)){
+for(i in 1:nrow(tc_afc)){
   
-      ns <- sum(tc[i,])
+      ns <- sum(tc_afc[i,])
       fs <- ns /n
 
       if(contribRow$`Dim 2`[i] > fs*100 && coordRow$`Dim 2`[i] > 0){
-        print(c(rownames(tc)[i],"+"))
+        print(c(rownames(contribRow)[i],"+"))
       }
       if(contribRow$`Dim 2`[i] > fs*100 && coordRow$`Dim 2`[i] < 0){
-        print(c(rownames(tc)[i],"-"))
+        print(c(rownames(contribRow)[i],"-"))
       }
 }
 
 
+
 ```
 
-Aussi le 2ème axe est à effet taille, il quantifie les classes qui ont beaucoup beacoup d'absences [s4] représenté par les individus qui ont des moyenne inferieure à 40% dans les cours académique. 
+Aussi le 2ème axe est à effet taille, il caractérise les les étudiant qui sont dans le programme Language représenté par les étudiants agés plus de 36 ans
 
 
 # Conclusion : 
 
- - AFCM : 
- - AFC : Les étudiant qui s'absentent beaucoup ont tendance à avoir des moyennes faibles inférieure à  40%
+  D’après les résultats obtenus par l'AFCM on conclut que :
+  
+  - Le type du programme suivi ainsi que l'assiduité ont un effet sur la gestion du temps des étudiants.
+  - Ceux qui suivent le cours Business savent combien de temps qu'ils prennent pour faire leurs devoirs maisons .
+    
+  D’après les résultats obtenus par l'AFC on conclut que :
+  
+  - Les étudiants qui ont plus de 36 ans suivent le programme language.
+  - Les étudiants moins de 20 ans sont soit dans le programme FC soit dans le programme IYO.
  
  
  
