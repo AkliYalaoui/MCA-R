@@ -562,7 +562,7 @@ fviz_cos2(acm, choice = "col", axes = 1:2,top=10)
 # AFC sur deux questions : 
 ## Croiser 2 questions : 
 
-Ici nous cherchons à faire une AFC entre les 2 questions les plus pertinentes, donc nous allons faire une recherche exhaustive pour les détécter
+Ici nous cherchons à faire une AFC entre les 2 questions les plus pertinentes, donc nous allons faire une recherche exhaustive pour les détecter [nous allons prendre celles qui donnent des trés bon résultat lors du test de KHI 2] :
 
 ```{r,warning=FALSE}
 
