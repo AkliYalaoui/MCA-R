@@ -128,11 +128,19 @@ for (i in 1: ncol(data)){
 Dans cette section , nous allons commencer à explorer nos données en étudiant les modalités de chaque variables.
 On aura besoin d'une fonction qui va nous donner des graphes pour chaque variables
 
-```{r,out.width="100%"}
+```{r,out.width="100%",warning=FALSE}
+
+library(ggplot2)
+
 Cat_plot <- function(y,title){
-  n <- table(y)
-  barplot(n,las = 2,main=title,ylab = "Count")
-  text(x =n, label = n,pos = 1, col = "red")
+  
+ggplot(data = data, aes(x=reorder(y, -table(y)[y]))) +
+    geom_bar(fill="#31708f") +
+    geom_text(stat='count', aes(label=..count..), vjust=1,colour="white") +
+    ggtitle(title) +
+    xlab("") +
+    ylab("Nombre d'étudiant")+
+    theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
   
 }
 
@@ -142,7 +150,7 @@ Cat_plot <- function(y,title){
 En regardant le graphe ci-dessous, il est clair que la majorité des personnes interrogées appartenaient au groupe d'âge 21-25 ans. Il y avait 6 personnes de moins de 18 ans et 4 de plus de 36 ans.
 
 ```{r}
-Cat_plot(data$Age,"La répartiton de l'age dans cette étude")
+Cat_plot(data$Age,"La répartition de l'age dans cette étude")
 
 ```
 
@@ -394,7 +402,7 @@ fviz_screeplot(acm, addlabels = TRUE)
 On remarque que pour avoir un pourcentage d'interie d'au moins 80% il faut prendre les 31 premiers axes factoriels :
 
 ```{r}
-acm$eig[,3]
+head(acm$eig[,3],31)
 ```
 
 ## le biplot individus-variables :
@@ -647,7 +655,7 @@ for(i in 1:nrow(tc_afc)){
 }
 ```
 
-On déduit que le premier axe est à effet taille, il caractèrise les étudiants qui sont dans les programmes FC et IYO représenté par les individus qui ont un age inférieure à 20 ans
+On déduit que le premier axe est à effet taille, il caractérise les étudiants qui sont dans les programmes FC et IYO représenté par les individus qui ont un age inférieure à 20 ans
 
 
 ```{r}
@@ -709,6 +717,7 @@ Aussi le 2ème axe est à effet taille, il caractérise les les étudiant qui so
   
   - Les étudiants qui ont plus de 36 ans suivent le programme language.
   - Les étudiants moins de 20 ans sont soit dans le programme FC soit dans le programme IYO.
+  - Et Ceux qui ont un age compris entre 31 et 35 ans suivent le programme PM.
  
  
  

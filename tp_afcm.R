@@ -49,10 +49,18 @@ for (i in 1: ncol(data)){
 
 # Etude et visualisation des statistiques des données :
 
+
+library(ggplot2)
+
 Cat_plot <- function(y,title){
-  n <- table(y)
-  barplot(n,las = 2,main=title,ylab = "Count")
-  text(x =n, label = n,pos = 1, col = "red")
+  
+  ggplot(data = data, aes(x=reorder(y, -table(y)[y]))) +
+    geom_bar(fill="#31708f") +
+    geom_text(stat='count', aes(label=..count..), vjust=1,colour="white") +
+    ggtitle(title) +
+    xlab("") +
+    ylab("Nombre d'étudiant")+
+    theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
   
 }
 
